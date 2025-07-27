@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+// This program implements the First-Come, First-Served (FCFS) scheduling algorithm, without considering arrival times.
+// It calculates the waiting time and turnaround time for each process based on their burst times.
+
 void main(){
     int n,i;
     float avg_wt = 0, avg_tat = 0;
