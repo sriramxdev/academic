@@ -6,14 +6,14 @@
 
 typedef struct {
     int pid;
-    int arrival_time;
-    int burst_time;
-    int remaining_time;
-    int waiting_time;
-    int turnaround_time;
-    int completion_time;
-    int response_time;
-    int first_response;
+    int at;
+    int bt;
+    int rt;
+    int wt;
+    int tat;
+    int ct;
+    int resp_time;
+    int first_resp;
 } Process;
 
 void calculateTimes(Process processes[], int n) {
@@ -23,8 +23,8 @@ void calculateTimes(Process processes[], int n) {
     
     // Initialize remaining times and response times
     for(int i = 0; i < n; i++) {
-        processes[i].remaining_time = processes[i].burst_time;
-        processes[i].first_response = -1;
+        processes[i].rt = processes[i].bt;
+        processes[i].first_resp = -1;
     }
     
     printf("\nTime\tProcess\tRemaining Time\n");
@@ -36,10 +36,10 @@ void calculateTimes(Process processes[], int n) {
         
         // Find process with shortest remaining time
         for(int i = 0; i < n; i++) {
-            if(processes[i].arrival_time <= current_time && 
-               processes[i].remaining_time > 0 && 
-               processes[i].remaining_time < min_remaining) {
-                min_remaining = processes[i].remaining_time;
+            if(processes[i].at <= current_time && 
+               processes[i].rt > 0 && 
+               processes[i].rt < min_remaining) {
+                min_remaining = processes[i].rt;
                 shortest = i;
             }
         }
@@ -50,22 +50,22 @@ void calculateTimes(Process processes[], int n) {
         }
         
         // Record first response time
-        if(processes[shortest].first_response == -1) {
-            processes[shortest].first_response = current_time;
-            processes[shortest].response_time = current_time - processes[shortest].arrival_time;
+        if(processes[shortest].first_resp == -1) {
+            processes[shortest].first_resp = current_time;
+            processes[shortest].resp_time = current_time - processes[shortest].at;
         }
         
         // Execute for 1 time unit
-        processes[shortest].remaining_time--;
+        processes[shortest].rt--;
         current_time++;
         
-        printf("%d\tP%d\t%d\n", current_time-1, processes[shortest].pid, processes[shortest].remaining_time);
+        printf("%d\tP%d\t%d\n", current_time-1, processes[shortest].pid, processes[shortest].rt);
         
         // Check if process is completed
-        if(processes[shortest].remaining_time == 0) {
-            processes[shortest].completion_time = current_time;
-            processes[shortest].turnaround_time = processes[shortest].completion_time - processes[shortest].arrival_time;
-            processes[shortest].waiting_time = processes[shortest].turnaround_time - processes[shortest].burst_time;
+        if(processes[shortest].rt == 0) {
+            processes[shortest].ct = current_time;
+            processes[shortest].tat = processes[shortest].ct - processes[shortest].at;
+            processes[shortest].wt = processes[shortest].tat - processes[shortest].bt;
             completed++;
         }
     }
@@ -79,13 +79,13 @@ void displayResults(Process processes[], int n) {
     
     for(int i = 0; i < n; i++) {
         printf("P%d\t\t%d\t%d\t%d\t%d\t\t%d\t\t%d\n", 
-               processes[i].pid, processes[i].arrival_time, processes[i].burst_time,
-               processes[i].waiting_time, processes[i].turnaround_time, 
-               processes[i].completion_time, processes[i].response_time);
+               processes[i].pid, processes[i].at, processes[i].bt,
+               processes[i].wt, processes[i].tat, 
+               processes[i].ct, processes[i].resp_time);
         
-        total_wt += processes[i].waiting_time;
-        total_tat += processes[i].turnaround_time;
-        total_rt += processes[i].response_time;
+        total_wt += processes[i].wt;
+        total_tat += processes[i].tat;
+        total_rt += processes[i].resp_time;
     }
     
     printf("\nAverage Waiting Time: %.2f\n", total_wt / n);
@@ -139,9 +139,9 @@ int main() {
     for(int i = 0; i < n; i++) {
         processes[i].pid = i + 1;
         printf("Enter arrival time for process P%d: ", i + 1);
-        scanf("%d", &processes[i].arrival_time);
+        scanf("%d", &processes[i].at);
         printf("Enter burst time for process P%d: ", i + 1);
-        scanf("%d", &processes[i].burst_time);
+        scanf("%d", &processes[i].bt);
     }
     
     // Calculate waiting and turnaround times

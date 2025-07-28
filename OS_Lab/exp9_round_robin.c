@@ -5,14 +5,14 @@
 
 typedef struct {
     int pid;
-    int arrival_time;
-    int burst_time;
-    int remaining_time;
-    int waiting_time;
-    int turnaround_time;
-    int completion_time;
-    int response_time;
-    int first_response;
+    int at;
+    int bt;
+    int rt;
+    int wt;
+    int tat;
+    int ct;
+    int resp_time;
+    int first_resp;
 } Process;
 
 void calculateTimes(Process processes[], int n, int quantum) {
@@ -23,13 +23,13 @@ void calculateTimes(Process processes[], int n, int quantum) {
     
     // Initialize remaining times and response times
     for(int i = 0; i < n; i++) {
-        processes[i].remaining_time = processes[i].burst_time;
-        processes[i].first_response = -1;
+        processes[i].rt = processes[i].bt;
+        processes[i].first_resp = -1;
     }
     
     // Add processes that arrive at time 0
     for(int i = 0; i < n; i++) {
-        if(processes[i].arrival_time <= current_time) {
+        if(processes[i].at <= current_time) {
             queue[rear++] = i;
             visited[i] = 1;
         }
@@ -44,7 +44,7 @@ void calculateTimes(Process processes[], int n, int quantum) {
             // Queue is empty, advance time and check for new arrivals
             current_time++;
             for(int i = 0; i < n; i++) {
-                if(processes[i].arrival_time <= current_time && !visited[i] && processes[i].remaining_time > 0) {
+                if(processes[i].at <= current_time && !visited[i] && processes[i].rt > 0) {
                     queue[rear++] = i;
                     visited[i] = 1;
                 }
@@ -55,33 +55,33 @@ void calculateTimes(Process processes[], int n, int quantum) {
         int current_process = queue[front++];
         
         // Record first response time
-        if(processes[current_process].first_response == -1) {
-            processes[current_process].first_response = current_time;
-            processes[current_process].response_time = current_time - processes[current_process].arrival_time;
+        if(processes[current_process].first_resp == -1) {
+            processes[current_process].first_resp = current_time;
+            processes[current_process].resp_time = current_time - processes[current_process].at;
         }
         
         // Execute for quantum time or remaining time, whichever is smaller
-        int execution_time = (processes[current_process].remaining_time > quantum) ? quantum : processes[current_process].remaining_time;
+        int execution_time = (processes[current_process].rt > quantum) ? quantum : processes[current_process].rt;
         
         printf("%d\tP%d\t%d\t\t%d\n", current_time, processes[current_process].pid, 
-               processes[current_process].remaining_time, execution_time);
+               processes[current_process].rt, execution_time);
         
-        processes[current_process].remaining_time -= execution_time;
+        processes[current_process].rt -= execution_time;
         current_time += execution_time;
         
         // Add newly arrived processes to queue
         for(int i = 0; i < n; i++) {
-            if(processes[i].arrival_time <= current_time && !visited[i] && processes[i].remaining_time > 0) {
+            if(processes[i].at <= current_time && !visited[i] && processes[i].rt > 0) {
                 queue[rear++] = i;
                 visited[i] = 1;
             }
         }
         
         // Check if current process is completed
-        if(processes[current_process].remaining_time == 0) {
-            processes[current_process].completion_time = current_time;
-            processes[current_process].turnaround_time = processes[current_process].completion_time - processes[current_process].arrival_time;
-            processes[current_process].waiting_time = processes[current_process].turnaround_time - processes[current_process].burst_time;
+        if(processes[current_process].rt == 0) {
+            processes[current_process].ct = current_time;
+            processes[current_process].tat = processes[current_process].ct - processes[current_process].at;
+            processes[current_process].wt = processes[current_process].tat - processes[current_process].bt;
             completed++;
         } else {
             // Add back to queue if not completed
@@ -98,13 +98,13 @@ void displayResults(Process processes[], int n) {
     
     for(int i = 0; i < n; i++) {
         printf("P%d\t\t%d\t%d\t%d\t%d\t\t%d\t\t%d\n", 
-               processes[i].pid, processes[i].arrival_time, processes[i].burst_time,
-               processes[i].waiting_time, processes[i].turnaround_time, 
-               processes[i].completion_time, processes[i].response_time);
+               processes[i].pid, processes[i].at, processes[i].bt,
+               processes[i].wt, processes[i].tat, 
+               processes[i].ct, processes[i].resp_time);
         
-        total_wt += processes[i].waiting_time;
-        total_tat += processes[i].turnaround_time;
-        total_rt += processes[i].response_time;
+        total_wt += processes[i].wt;
+        total_tat += processes[i].tat;
+        total_rt += processes[i].resp_time;
     }
     
     printf("\nAverage Waiting Time: %.2f\n", total_wt / n);
@@ -123,7 +123,7 @@ void displayGanttChart(Process processes[], int n) {
     
     for(int i = 0; i < n - 1; i++) {
         for(int j = 0; j < n - i - 1; j++) {
-            if(temp[j].completion_time > temp[j+1].completion_time) {
+            if(temp[j].ct > temp[j+1].ct) {
                 Process t = temp[j];
                 temp[j] = temp[j+1];
                 temp[j+1] = t;
@@ -139,7 +139,7 @@ void displayGanttChart(Process processes[], int n) {
     
     printf("0");
     for(int i = 0; i < n; i++) {
-        printf("   %d", temp[i].completion_time);
+        printf("   %d", temp[i].ct);
     }
     printf("\n");
 }
@@ -160,9 +160,9 @@ int main() {
     for(int i = 0; i < n; i++) {
         processes[i].pid = i + 1;
         printf("Enter arrival time for process P%d: ", i + 1);
-        scanf("%d", &processes[i].arrival_time);
+        scanf("%d", &processes[i].at);
         printf("Enter burst time for process P%d: ", i + 1);
-        scanf("%d", &processes[i].burst_time);
+        scanf("%d", &processes[i].bt);
     }
     
     // Calculate waiting and turnaround times

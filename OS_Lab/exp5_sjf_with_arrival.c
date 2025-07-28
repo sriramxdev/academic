@@ -6,11 +6,11 @@
 
 typedef struct {
     int pid;
-    int arrival_time;
-    int burst_time;
-    int waiting_time;
-    int turnaround_time;
-    int completion_time;
+    int at;
+    int bt;
+    int wt;
+    int tat;
+    int ct;
     int is_completed;
 } Process;
 
@@ -20,9 +20,9 @@ int findShortestJob(Process processes[], int n, int current_time) {
     
     for(int i = 0; i < n; i++) {
         if(!processes[i].is_completed && 
-           processes[i].arrival_time <= current_time && 
-           processes[i].burst_time < min_burst) {
-            min_burst = processes[i].burst_time;
+           processes[i].at <= current_time && 
+           processes[i].bt < min_burst) {
+            min_burst = processes[i].bt;
             shortest = i;
         }
     }
@@ -44,10 +44,10 @@ void calculateTimes(Process processes[], int n) {
         }
         
         // Execute the shortest job
-        current_time += processes[shortest].burst_time;
-        processes[shortest].completion_time = current_time;
-        processes[shortest].turnaround_time = processes[shortest].completion_time - processes[shortest].arrival_time;
-        processes[shortest].waiting_time = processes[shortest].turnaround_time - processes[shortest].burst_time;
+        current_time += processes[shortest].bt;
+        processes[shortest].ct = current_time;
+        processes[shortest].tat = processes[shortest].ct - processes[shortest].at;
+        processes[shortest].wt = processes[shortest].tat - processes[shortest].bt;
         processes[shortest].is_completed = 1;
         completed++;
     }
@@ -61,11 +61,11 @@ void displayResults(Process processes[], int n) {
     
     for(int i = 0; i < n; i++) {
         printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", 
-               processes[i].pid, processes[i].arrival_time, processes[i].burst_time,
-               processes[i].waiting_time, processes[i].turnaround_time, processes[i].completion_time);
+               processes[i].pid, processes[i].at, processes[i].bt,
+               processes[i].wt, processes[i].tat, processes[i].ct);
         
-        total_wt += processes[i].waiting_time;
-        total_tat += processes[i].turnaround_time;
+        total_wt += processes[i].wt;
+        total_tat += processes[i].tat;
     }
     
     printf("\nAverage Waiting Time: %.2f\n", total_wt / n);
@@ -82,7 +82,7 @@ void displayExecutionOrder(Process processes[], int n) {
     // Sort by completion time to show execution order
     for(int i = 0; i < n - 1; i++) {
         for(int j = 0; j < n - i - 1; j++) {
-            if(temp[j].completion_time > temp[j+1].completion_time) {
+            if(temp[j].ct > temp[j+1].ct) {
                 Process t = temp[j];
                 temp[j] = temp[j+1];
                 temp[j+1] = t;
@@ -110,9 +110,9 @@ int main() {
     for(int i = 0; i < n; i++) {
         processes[i].pid = i + 1;
         printf("Enter arrival time for process P%d: ", i + 1);
-        scanf("%d", &processes[i].arrival_time);
+        scanf("%d", &processes[i].at);
         printf("Enter burst time for process P%d: ", i + 1);
-        scanf("%d", &processes[i].burst_time);
+        scanf("%d", &processes[i].bt);
         processes[i].is_completed = 0;
     }
     

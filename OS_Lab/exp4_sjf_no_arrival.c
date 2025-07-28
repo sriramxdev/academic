@@ -5,15 +5,15 @@
 
 typedef struct {
     int pid;
-    int burst_time;
-    int waiting_time;
-    int turnaround_time;
+    int bt;
+    int wt;
+    int tat;
 } Process;
 
 void sortByBurstTime(Process processes[], int n) {
     for(int i = 0; i < n - 1; i++) {
         for(int j = 0; j < n - i - 1; j++) {
-            if(processes[j].burst_time > processes[j+1].burst_time) {
+            if(processes[j].bt > processes[j+1].bt) {
                 Process temp = processes[j];
                 processes[j] = processes[j+1];
                 processes[j+1] = temp;
@@ -24,14 +24,14 @@ void sortByBurstTime(Process processes[], int n) {
 
 void calculateTimes(Process processes[], int n) {
     // Calculate waiting times
-    processes[0].waiting_time = 0;
+    processes[0].wt = 0;
     for(int i = 1; i < n; i++) {
-        processes[i].waiting_time = processes[i-1].waiting_time + processes[i-1].burst_time;
+        processes[i].wt = processes[i-1].wt + processes[i-1].bt;
     }
     
     // Calculate turnaround times
     for(int i = 0; i < n; i++) {
-        processes[i].turnaround_time = processes[i].waiting_time + processes[i].burst_time;
+        processes[i].tat = processes[i].wt + processes[i].bt;
     }
 }
 
@@ -43,11 +43,11 @@ void displayResults(Process processes[], int n) {
     
     for(int i = 0; i < n; i++) {
         printf("P%d\t\t%d\t\t%d\t\t%d\n", 
-               processes[i].pid, processes[i].burst_time,
-               processes[i].waiting_time, processes[i].turnaround_time);
+               processes[i].pid, processes[i].bt,
+               processes[i].wt, processes[i].tat);
         
-        total_wt += processes[i].waiting_time;
-        total_tat += processes[i].turnaround_time;
+        total_wt += processes[i].wt;
+        total_tat += processes[i].tat;
     }
     
     printf("\nAverage Waiting Time: %.2f\n", total_wt / n);
@@ -65,7 +65,7 @@ void displayGanttChart(Process processes[], int n) {
     printf("0");
     int time = 0;
     for(int i = 0; i < n; i++) {
-        time += processes[i].burst_time;
+        time += processes[i].bt;
         printf("   %d", time);
     }
     printf("\n");
@@ -84,12 +84,12 @@ int main() {
     for(int i = 0; i < n; i++) {
         processes[i].pid = i + 1;
         printf("Enter burst time for process P%d: ", i + 1);
-        scanf("%d", &processes[i].burst_time);
+        scanf("%d", &processes[i].bt);
     }
     
     printf("\nOriginal process order:\n");
     for(int i = 0; i < n; i++) {
-        printf("P%d: %d  ", processes[i].pid, processes[i].burst_time);
+        printf("P%d: %d  ", processes[i].pid, processes[i].bt);
     }
     printf("\n");
     
@@ -98,7 +98,7 @@ int main() {
     
     printf("\nAfter sorting by burst time (SJF order):\n");
     for(int i = 0; i < n; i++) {
-        printf("P%d: %d  ", processes[i].pid, processes[i].burst_time);
+        printf("P%d: %d  ", processes[i].pid, processes[i].bt);
     }
     printf("\n");
     

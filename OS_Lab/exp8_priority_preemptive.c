@@ -6,15 +6,15 @@
 
 typedef struct {
     int pid;
-    int arrival_time;
-    int burst_time;
+    int at;
+    int bt;
     int priority;
-    int remaining_time;
-    int waiting_time;
-    int turnaround_time;
-    int completion_time;
-    int response_time;
-    int first_response;
+    int rt;
+    int wt;
+    int tat;
+    int ct;
+    int resp_time;
+    int first_resp;
 } Process;
 
 void calculateTimes(Process processes[], int n) {
@@ -23,8 +23,8 @@ void calculateTimes(Process processes[], int n) {
     
     // Initialize remaining times and response times
     for(int i = 0; i < n; i++) {
-        processes[i].remaining_time = processes[i].burst_time;
-        processes[i].first_response = -1;
+        processes[i].rt = processes[i].bt;
+        processes[i].first_resp = -1;
     }
     
     printf("\nExecution Timeline (Preemptive):\n");
@@ -37,8 +37,8 @@ void calculateTimes(Process processes[], int n) {
         
         // Find process with highest priority (lowest priority number)
         for(int i = 0; i < n; i++) {
-            if(processes[i].arrival_time <= current_time && 
-               processes[i].remaining_time > 0 && 
+            if(processes[i].at <= current_time && 
+               processes[i].rt > 0 && 
                processes[i].priority < min_priority) {
                 min_priority = processes[i].priority;
                 highest = i;
@@ -51,23 +51,23 @@ void calculateTimes(Process processes[], int n) {
         }
         
         // Record first response time
-        if(processes[highest].first_response == -1) {
-            processes[highest].first_response = current_time;
-            processes[highest].response_time = current_time - processes[highest].arrival_time;
+        if(processes[highest].first_resp == -1) {
+            processes[highest].first_resp = current_time;
+            processes[highest].resp_time = current_time - processes[highest].at;
         }
         
         // Execute for 1 time unit
-        processes[highest].remaining_time--;
+        processes[highest].rt--;
         current_time++;
         
         printf("%d\tP%d\t%d\t\t%d\n", current_time-1, processes[highest].pid, 
-               processes[highest].priority, processes[highest].remaining_time);
+               processes[highest].priority, processes[highest].rt);
         
         // Check if process is completed
-        if(processes[highest].remaining_time == 0) {
-            processes[highest].completion_time = current_time;
-            processes[highest].turnaround_time = processes[highest].completion_time - processes[highest].arrival_time;
-            processes[highest].waiting_time = processes[highest].turnaround_time - processes[highest].burst_time;
+        if(processes[highest].rt == 0) {
+            processes[highest].ct = current_time;
+            processes[highest].tat = processes[highest].ct - processes[highest].at;
+            processes[highest].wt = processes[highest].tat - processes[highest].bt;
             completed++;
         }
     }
@@ -81,13 +81,13 @@ void displayResults(Process processes[], int n) {
     
     for(int i = 0; i < n; i++) {
         printf("P%d\t\t%d\t%d\t%d\t\t%d\t%d\t\t%d\t\t%d\n", 
-               processes[i].pid, processes[i].arrival_time, processes[i].burst_time,
-               processes[i].priority, processes[i].waiting_time, 
-               processes[i].turnaround_time, processes[i].completion_time, processes[i].response_time);
+               processes[i].pid, processes[i].at, processes[i].bt,
+               processes[i].priority, processes[i].wt, 
+               processes[i].tat, processes[i].ct, processes[i].resp_time);
         
-        total_wt += processes[i].waiting_time;
-        total_tat += processes[i].turnaround_time;
-        total_rt += processes[i].response_time;
+        total_wt += processes[i].wt;
+        total_tat += processes[i].tat;
+        total_rt += processes[i].resp_time;
     }
     
     printf("\nAverage Waiting Time: %.2f\n", total_wt / n);
