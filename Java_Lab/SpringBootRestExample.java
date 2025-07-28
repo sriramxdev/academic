@@ -1,0 +1,2 @@
+// This is a placeholder. In practice, you would use Spring Boot with @RestController, @GetMapping, etc.
+// For a real RESTful service, create a Spring Boot project and define endpoints for GET, POST, PUT, DELETE.

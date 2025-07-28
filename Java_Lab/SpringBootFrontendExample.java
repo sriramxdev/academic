@@ -1,0 +1,1 @@
+// This is a placeholder. In practice, you would use Spring Boot with Thymeleaf or integrate with a frontend framework.
